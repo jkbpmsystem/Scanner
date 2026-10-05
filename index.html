@@ -3,165 +3,875 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+
 <title>PPM Asset Scanner</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+  rel="stylesheet">
+
+<link
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  rel="stylesheet">
+
 <style>
-:root{--bg:#07111f;--card:#101f33;--border:#1d3855;--text:#e8f1fa;--muted:#8fa8c1;--cyan:#18d9ff;--blue:#35a7ff;--green:#35d07f;--red:#ff5c72}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at 20% 0%,#102c48 0%,var(--bg) 48%);color:var(--text);font-family:Inter,Segoe UI,Arial,sans-serif}.wrap{max-width:620px;margin:auto;padding:18px}.cardx{background:linear-gradient(145deg,var(--card),#0b1828);border:1px solid var(--border);border-radius:18px;padding:18px}.title{font-weight:700;font-size:20px}.sub,.status{color:var(--muted);font-size:12px}.reader{width:100%;min-height:340px;overflow:hidden;border-radius:14px;background:#02070d;border:1px solid var(--border)}#reader video{width:100%!important;border-radius:14px}.btn-scan{background:linear-gradient(135deg,#178be5,#18c8e8);border:0;color:#001321;font-weight:700}.manual{background:#0b192b;color:#fff;border:1px solid var(--border)}.asset{font-size:22px;font-weight:700;color:var(--cyan);word-break:break-all}
+
+:root{
+  --bg:#07111f;
+  --card:#101f33;
+  --border:#1d3855;
+  --text:#e8f1fa;
+  --muted:#8fa8c1;
+  --cyan:#18d9ff;
+  --blue:#35a7ff;
+  --green:#35d07f;
+  --red:#ff5c72;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      #102c48 0%,
+      var(--bg) 48%
+    );
+  color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;
+}
+
+.wrap{
+  max-width:620px;
+  margin:auto;
+  padding:18px;
+}
+
+.cardx{
+  background:
+    linear-gradient(
+      145deg,
+      var(--card),
+      #0b1828
+    );
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+}
+
+.title{
+  font-weight:700;
+  font-size:20px;
+}
+
+.sub,
+.status{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.reader{
+  width:100%;
+  min-height:340px;
+  overflow:hidden;
+  border-radius:14px;
+  background:#02070d;
+  border:1px solid var(--border);
+}
+
+#reader video{
+  width:100%!important;
+  height:auto!important;
+  border-radius:14px;
+  object-fit:cover;
+}
+
+.btn-scan{
+  background:
+    linear-gradient(
+      135deg,
+      #178be5,
+      #18c8e8
+    );
+  border:0;
+  color:#001321;
+  font-weight:700;
+}
+
+.btn-scan:active{
+  transform:scale(.98);
+}
+
+.manual{
+  background:#0b192b;
+  color:#fff;
+  border:1px solid var(--border);
+}
+
+.manual::placeholder{
+  color:#8fa8c1;
+}
+
+.asset{
+  font-size:22px;
+  font-weight:700;
+  color:var(--cyan);
+  word-break:break-all;
+}
+
+.camera-status{
+  min-height:20px;
+}
+
 </style>
 </head>
+
 <body>
-<div class="wrap"><div class="cardx">
-<div class="d-flex align-items-center gap-3 mb-2"><i class="bi bi-upc-scan fs-2" style="color:var(--cyan)"></i><div><div class="title">PPM ASSET SCANNER</div><div class="sub">Scan Barcode / QR Code</div></div></div>
-<div id="status" class="status mb-3">Memulakan scanner...</div>
-<div id="reader" class="reader"></div>
-<div id="result" class="text-center mt-3"></div>
-<div class="mt-3"><label class="form-label small">Atau masukkan Asset No secara manual</label><div class="input-group"><input id="manualAsset" class="form-control manual" placeholder="Contoh: MECH-0001"><button id="sendBtn" class="btn btn-scan">Hantar</button></div></div>
-</div></div>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<div class="wrap">
+
+  <div class="cardx">
+
+    <!-- HEADER -->
+
+    <div class="d-flex align-items-center gap-3 mb-2">
+
+      <i
+        class="bi bi-upc-scan fs-2"
+        style="color:var(--cyan)">
+      </i>
+
+      <div>
+
+        <div class="title">
+          PPM ASSET SCANNER
+        </div>
+
+        <div class="sub">
+          Scan Barcode / QR Code
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- STATUS -->
+
+    <div
+      id="status"
+      class="status camera-status mb-3">
+
+      Tekan MULA SCAN untuk menggunakan kamera.
+
+    </div>
+
+
+    <!-- CAMERA -->
+
+    <div
+      id="reader"
+      class="reader">
+    </div>
+
+
+    <!-- START CAMERA BUTTON -->
+
+    <button
+      id="startBtn"
+      type="button"
+      class="btn btn-scan w-100 mt-3">
+
+      <i class="bi bi-camera-fill me-2"></i>
+
+      MULA SCAN
+
+    </button>
+
+
+    <!-- RESULT -->
+
+    <div
+      id="result"
+      class="text-center mt-3">
+    </div>
+
+
+    <!-- MANUAL -->
+
+    <div class="mt-3">
+
+      <label class="form-label small">
+
+        Atau masukkan Asset No secara manual
+
+      </label>
+
+      <div class="input-group">
+
+        <input
+          id="manualAsset"
+          class="form-control manual"
+          placeholder="Contoh: SZA00018F"
+          autocomplete="off"
+          autocapitalize="characters">
+
+        <button
+          id="sendBtn"
+          type="button"
+          class="btn btn-scan">
+
+          Hantar
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script
+  src="https://unpkg.com/html5-qrcode"
+  type="text/javascript">
+</script>
+
+
 <script>
-let scanner=null,sent=false;
-const statusEl=document.getElementById('status');
-const params=new URLSearchParams(location.search);
-const returnUrl=params.get('returnUrl');
-function setStatus(t){statusEl.textContent=t}
-function clean(v){return String(v||'').trim()}
-function goBack(assetNo) {
 
-  if (sent) return;
+let scanner = null;
 
-  const v = clean(assetNo);
+let scannerRunning = false;
 
-  if (!v) return;
-
-  sent = true;
-
-  setStatus('Asset berjaya dibaca. Kembali ke sistem PPM...');
-
-  document.getElementById('result').innerHTML =
-    '<div class="asset">' +
-    escapeHtml(v) +
-    '</div>' +
-    '<div class="status mt-2">Kembali ke sistem PPM...</div>';
-
-  const finish = () => {
-
-    if (returnUrl) {
-
-      try {
-
-        const u = new URL(returnUrl);
-
-        // Hantar Asset No ke sistem PPM
-        u.searchParams.set('assetNo', v);
-
-        // TERUS kembali ke sistem
-        window.location.replace(u.toString());
-
-        return;
-
-      } catch (e) {
-
-        console.error('Return URL error:', e);
-
-      }
-    }
-
-    setStatus('Asset No berjaya dibaca.');
-
-  };
+let sent = false;
 
 
-  // Kalau scanner belum running / sudah berhenti,
-  // jangan paksa stop.
-  if (!scanner) {
+/* ==========================================
+   BASIC
+========================================== */
 
-    finish();
+const statusEl =
+  document.getElementById('status');
+
+const readerEl =
+  document.getElementById('reader');
+
+const params =
+  new URLSearchParams(location.search);
+
+const returnUrl =
+  params.get('returnUrl');
+
+
+function setStatus(text){
+
+  statusEl.textContent = text;
+
+}
+
+
+function clean(value){
+
+  return String(value || '').trim();
+
+}
+
+
+/* ==========================================
+   START CAMERA
+========================================== */
+
+async function startScanner(){
+
+  if(scannerRunning){
+
     return;
 
   }
 
 
-  // Cuba hentikan scanner.
-  // Walaupun stop() gagal, tetap teruskan finish().
-  scanner.stop()
-    .catch((err) => {
+  if(typeof Html5Qrcode === 'undefined'){
 
-      console.warn('Scanner stop:', err);
+    setStatus(
+      'Scanner library gagal dimuat.'
+    );
 
-    })
-    .finally(() => {
+    return;
 
-      try {
-        scanner.clear();
-      } catch (e) {
-        console.warn('Scanner clear:', e);
+  }
+
+
+  try{
+
+    setStatus(
+      'Meminta akses kamera...'
+    );
+
+
+    /*
+      Buat scanner baru
+    */
+
+    scanner =
+      new Html5Qrcode('reader');
+
+
+    /*
+      Scanner configuration
+    */
+
+    const config = {
+
+      fps:10,
+
+      qrbox:function(width,height){
+
+        const minEdge =
+          Math.min(width,height);
+
+        const boxWidth =
+          Math.floor(
+            minEdge * 0.75
+          );
+
+        const boxHeight =
+          Math.floor(
+            minEdge * 0.45
+          );
+
+        return {
+
+          width:Math.max(
+            220,
+            Math.min(
+              boxWidth,
+              420
+            )
+          ),
+
+          height:Math.max(
+            120,
+            Math.min(
+              boxHeight,
+              280
+            )
+          )
+
+        };
+
       }
 
-      const reader = document.getElementById('reader');
+    };
 
-      if (reader) {
-        reader.innerHTML = '';
+
+    /*
+      Mula kamera belakang
+    */
+
+    await scanner.start(
+
+      {
+        facingMode:"environment"
+      },
+
+      config,
+
+      function(decodedText){
+
+        console.log(
+          'Barcode detected:',
+          decodedText
+        );
+
+        handleScan(
+          decodedText
+        );
+
+      },
+
+      function(errorMessage){
+
+        /*
+          Error setiap frame adalah normal.
+          Jangan papar kepada user.
+        */
+
       }
 
-      // Tetap return walaupun stop gagal
-      setTimeout(finish, 150);
+    );
+
+
+    scannerRunning = true;
+
+
+    setStatus(
+      'Kamera aktif. Halakan kamera kepada barcode aset.'
+    );
+
+
+    /*
+      Tukar button
+    */
+
+    const startBtn =
+      document.getElementById(
+        'startBtn'
+      );
+
+    startBtn.innerHTML =
+      '<i class="bi bi-camera-fill me-2"></i>' +
+      'KAMERA AKTIF';
+
+    startBtn.disabled = true;
+
+
+  }
+
+  catch(error){
+
+    console.error(
+      'Camera start error:',
+      error
+    );
+
+
+    scannerRunning = false;
+
+    scanner = null;
+
+
+    setStatus(
+      'Kamera tidak dapat dibuka.'
+    );
+
+
+    alert(
+      'Kamera tidak dapat dibuka.\n\n' +
+      'Sila pastikan permission kamera ' +
+      'dibenarkan untuk browser ini.'
+    );
+
+  }
+
+}
+
+
+/* ==========================================
+   STOP CAMERA
+========================================== */
+
+async function stopScanner(){
+
+  if(
+    !scanner ||
+    !scannerRunning
+  ){
+
+    return;
+
+  }
+
+
+  try{
+
+    await scanner.stop();
+
+  }
+
+  catch(error){
+
+    console.warn(
+      'Scanner stop:',
+      error
+    );
+
+  }
+
+
+  try{
+
+    scanner.clear();
+
+  }
+
+  catch(error){
+
+    console.warn(
+      'Scanner clear:',
+      error
+    );
+
+  }
+
+
+  scannerRunning = false;
+
+  scanner = null;
+
+}
+
+
+/* ==========================================
+   HANDLE SCAN
+========================================== */
+
+function handleScan(decodedText){
+
+  const assetNo =
+    clean(decodedText)
+      .toUpperCase();
+
+
+  if(!assetNo){
+
+    return;
+
+  }
+
+
+  console.log(
+    'Scanned Asset No:',
+    assetNo
+  );
+
+
+  goBack(assetNo);
+
+}
+
+
+/* ==========================================
+   RETURN AFTER SCAN
+========================================== */
+
+function goBack(assetNo){
+
+  if(sent){
+
+    return;
+
+  }
+
+
+  const v =
+    clean(assetNo)
+      .toUpperCase();
+
+
+  if(!v){
+
+    return;
+
+  }
+
+
+  sent = true;
+
+
+  setStatus(
+    'Asset berjaya dibaca. Kembali ke sistem PPM...'
+  );
+
+
+  document.getElementById(
+    'result'
+  ).innerHTML =
+
+    '<div class="asset">' +
+      escapeHtml(v) +
+    '</div>' +
+
+    '<div class="status mt-2">' +
+      'Kembali ke sistem PPM...' +
+    '</div>';
+
+
+  stopScanner()
+    .finally(function(){
+
+      returnToSystem(v);
 
     });
 
 }
 
-function goBackManual(assetNo) {
 
-  const v = clean(assetNo);
+/* ==========================================
+   RETURN TO SYSTEM
+========================================== */
 
-  if (!v) {
-    alert('Sila masukkan Asset No.');
+function returnToSystem(assetNo){
+
+  if(!returnUrl){
+
+    setStatus(
+      'Return URL tidak ditetapkan.'
+    );
+
     return;
-  }
-
-  if (!returnUrl) {
-    alert('Return URL tidak ditetapkan.');
-    return;
-  }
-
-  try {
-
-    const u = new URL(returnUrl);
-
-    u.searchParams.set('assetNo', v);
-
-    window.location.href = u.toString();
-
-  } catch (e) {
-
-    console.error('Return URL error:', e);
-    alert('Gagal kembali ke sistem PPM.');
 
   }
+
+
+  try{
+
+    const u =
+      new URL(returnUrl);
+
+
+    /*
+      Hantar Asset No
+    */
+
+    u.searchParams.set(
+      'assetNo',
+      assetNo
+    );
+
+
+    console.log(
+      'Returning to:',
+      u.toString()
+    );
+
+
+    /*
+      Return ke PPM
+    */
+
+    window.location.replace(
+      u.toString()
+    );
+
+  }
+
+  catch(error){
+
+    console.error(
+      'Return URL error:',
+      error
+    );
+
+
+    setStatus(
+      'Gagal kembali ke sistem PPM.'
+    );
+
+  }
+
 }
-  
-async function start(){
- if(typeof Html5Qrcode==='undefined'){setStatus('Scanner library gagal dimuat.');return}
- scanner=new Html5Qrcode('reader');
- const config={fps:15,qrbox:(w,h)=>{const size=Math.floor(Math.min(w,h)*.72);return {width:Math.max(220,Math.min(size,420)),height:Math.max(220,Math.min(size,420))}}};
- try{await scanner.start({facingMode:'environment'},config,(text)=>goBack(text),()=>{});setStatus('Halakan QR Code / barcode ke dalam kotak.')}catch(e){console.error(e);setStatus('Kamera tidak dapat dibuka. Pastikan permission kamera dibenarkan.')}
-}
-document.getElementById('sendBtn').addEventListener('click', function () {
 
-  const value = document.getElementById('manualAsset').value.trim();
 
-  if (!value) {
-    alert('Sila masukkan Asset No.');
+/* ==========================================
+   MANUAL ASSET
+========================================== */
+
+function goBackManual(assetNo){
+
+  const v =
+    clean(assetNo)
+      .toUpperCase();
+
+
+  if(!v){
+
+    alert(
+      'Sila masukkan Asset No.'
+    );
+
     return;
+
   }
 
-  goBackManual(value);
 
-});
-document.getElementById('manualAsset').addEventListener('keydown',e=>{if(e.key==='Enter')goBack(e.target.value)});
-function escapeHtml(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
-window.addEventListener('load',start);
+  if(!returnUrl){
+
+    alert(
+      'Return URL tidak ditetapkan.'
+    );
+
+    return;
+
+  }
+
+
+  sent = true;
+
+
+  try{
+
+    const u =
+      new URL(returnUrl);
+
+
+    u.searchParams.set(
+      'assetNo',
+      v
+    );
+
+
+    console.log(
+      'Manual return:',
+      u.toString()
+    );
+
+
+    window.location.replace(
+      u.toString()
+    );
+
+  }
+
+  catch(error){
+
+    console.error(
+      'Manual return error:',
+      error
+    );
+
+
+    alert(
+      'Gagal kembali ke sistem PPM.'
+    );
+
+  }
+
+}
+
+
+/* ==========================================
+   BUTTON - START CAMERA
+========================================== */
+
+document
+  .getElementById('startBtn')
+  .addEventListener(
+    'click',
+    function(){
+
+      startScanner();
+
+    }
+  );
+
+
+/* ==========================================
+   BUTTON - MANUAL
+========================================== */
+
+document
+  .getElementById('sendBtn')
+  .addEventListener(
+    'click',
+    function(){
+
+      const input =
+        document.getElementById(
+          'manualAsset'
+        );
+
+
+      const value =
+        input.value.trim();
+
+
+      if(!value){
+
+        alert(
+          'Sila masukkan Asset No.'
+        );
+
+        input.focus();
+
+        return;
+
+      }
+
+
+      goBackManual(value);
+
+    }
+  );
+
+
+/* ==========================================
+   ENTER - MANUAL
+========================================== */
+
+document
+  .getElementById('manualAsset')
+  .addEventListener(
+    'keydown',
+    function(event){
+
+      if(
+        event.key === 'Enter'
+      ){
+
+        event.preventDefault();
+
+        const value =
+          this.value.trim();
+
+
+        if(!value){
+
+          alert(
+            'Sila masukkan Asset No.'
+          );
+
+          return;
+
+        }
+
+
+        goBackManual(value);
+
+      }
+
+    }
+  );
+
+
+/* ==========================================
+   ESCAPE HTML
+========================================== */
+
+function escapeHtml(value){
+
+  return String(value)
+
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+
+    .replace(
+      /</g,
+      '&lt;'
+    )
+
+    .replace(
+      />/g,
+      '&gt;'
+    )
+
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
 </script>
-</body></html>
+
+</body>
+</html>
