@@ -27,18 +27,75 @@ const params=new URLSearchParams(location.search);
 const returnUrl=params.get('returnUrl');
 function setStatus(t){statusEl.textContent=t}
 function clean(v){return String(v||'').trim()}
-function goBack(assetNo){
-  if(sent)return; const v=clean(assetNo); if(!v)return; sent=true;
-  setStatus('Scan berjaya. Menutup kamera dan kembali ke sistem PPM...');
-  document.getElementById('result').innerHTML='<div class="asset">'+escapeHtml(v)+'</div><div class="status mt-2">Kembali ke sistem...</div>';
-  const finish=()=>{
-    if(returnUrl){
-      try{const u=new URL(returnUrl);u.searchParams.set('assetNo',v);location.replace(u.toString());return}catch(e){console.error(e)}
+function goBack(assetNo) {
+
+  if (sent) return;
+
+  const v = clean(assetNo);
+
+  if (!v) return;
+
+  sent = true;
+
+  setStatus('Scan berjaya. Kembali ke sistem PPM...');
+
+  document.getElementById('result').innerHTML =
+    '<div class="asset">' +
+    escapeHtml(v) +
+    '</div>' +
+    '<div class="status mt-2">Kembali ke sistem PPM...</div>';
+
+  const finish = () => {
+
+    if (returnUrl) {
+
+      try {
+
+        const u = new URL(returnUrl);
+
+        // Masukkan Asset No
+        u.searchParams.set('assetNo', v);
+
+        // Terus balik ke sistem
+        window.location.replace(u.toString());
+
+        return;
+
+      } catch (e) {
+
+        console.error('Return URL error:', e);
+
+      }
+
     }
-    setStatus('Asset No berjaya dibaca. Sila kembali ke sistem PPM.');
+
+    setStatus(
+      'Asset No berjaya dibaca. Sila kembali ke sistem PPM.'
+    );
   };
-  if(scanner){scanner.stop().catch(()=>{}).finally(()=>{try{scanner.clear()}catch(e){};document.getElementById('reader').innerHTML='';setTimeout(finish,150)})}
-  else finish();
+
+  if (scanner) {
+
+    scanner.stop()
+      .catch(() => {})
+      .finally(() => {
+
+        try {
+          scanner.clear();
+        } catch (e) {}
+
+        document.getElementById('reader').innerHTML = '';
+
+        // Beri masa kamera ditutup
+        setTimeout(finish, 200);
+
+      });
+
+  } else {
+
+    finish();
+
+  }
 }
 async function start(){
  if(typeof Html5Qrcode==='undefined'){setStatus('Scanner library gagal dimuat.');return}
