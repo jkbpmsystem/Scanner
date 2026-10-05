@@ -111,6 +111,33 @@ function goBack(assetNo) {
     });
 
 }
+
+function goBackManual(assetNo) {
+
+  const v = clean(assetNo);
+
+  if (!v) return;
+
+  if (!returnUrl) {
+    setStatus('Asset No: ' + v);
+    return;
+  }
+
+  try {
+
+    const u = new URL(returnUrl);
+
+    u.searchParams.set('assetNo', v);
+
+    window.location.replace(u.toString());
+
+  } catch (e) {
+
+    console.error('Return URL error:', e);
+
+  }
+
+}
   
 async function start(){
  if(typeof Html5Qrcode==='undefined'){setStatus('Scanner library gagal dimuat.');return}
@@ -118,7 +145,22 @@ async function start(){
  const config={fps:15,qrbox:(w,h)=>{const size=Math.floor(Math.min(w,h)*.72);return {width:Math.max(220,Math.min(size,420)),height:Math.max(220,Math.min(size,420))}}};
  try{await scanner.start({facingMode:'environment'},config,(text)=>goBack(text),()=>{});setStatus('Halakan QR Code / barcode ke dalam kotak.')}catch(e){console.error(e);setStatus('Kamera tidak dapat dibuka. Pastikan permission kamera dibenarkan.')}
 }
-document.getElementById('sendBtn').addEventListener('click',()=>goBack(document.getElementById('manualAsset').value));
+document.getElementById('sendBtn').addEventListener(
+  'click',
+  () => {
+
+    const value = document.getElementById('manualAsset').value.trim();
+
+    if (!value) {
+      alert('Sila masukkan Asset No.');
+      return;
+    }
+
+    // Manual entry → terus return
+    goBackManual(value);
+
+  }
+);
 document.getElementById('manualAsset').addEventListener('keydown',e=>{if(e.key==='Enter')goBack(e.target.value)});
 function escapeHtml(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;')}
 window.addEventListener('load',start);
