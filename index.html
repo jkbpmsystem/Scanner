@@ -37,7 +37,7 @@ function goBack(assetNo) {
 
   sent = true;
 
-  setStatus('Scan berjaya. Kembali ke sistem PPM...');
+  setStatus('Asset berjaya dibaca. Kembali ke sistem PPM...');
 
   document.getElementById('result').innerHTML =
     '<div class="asset">' +
@@ -53,10 +53,10 @@ function goBack(assetNo) {
 
         const u = new URL(returnUrl);
 
-        // Masukkan Asset No
+        // Hantar Asset No ke sistem PPM
         u.searchParams.set('assetNo', v);
 
-        // Terus balik ke sistem
+        // TERUS kembali ke sistem
         window.location.replace(u.toString());
 
         return;
@@ -66,37 +66,52 @@ function goBack(assetNo) {
         console.error('Return URL error:', e);
 
       }
-
     }
 
-    setStatus(
-      'Asset No berjaya dibaca. Sila kembali ke sistem PPM.'
-    );
+    setStatus('Asset No berjaya dibaca.');
+
   };
 
-  if (scanner) {
 
-    scanner.stop()
-      .catch(() => {})
-      .finally(() => {
-
-        try {
-          scanner.clear();
-        } catch (e) {}
-
-        document.getElementById('reader').innerHTML = '';
-
-        // Beri masa kamera ditutup
-        setTimeout(finish, 200);
-
-      });
-
-  } else {
+  // Kalau scanner belum running / sudah berhenti,
+  // jangan paksa stop.
+  if (!scanner) {
 
     finish();
+    return;
 
   }
+
+
+  // Cuba hentikan scanner.
+  // Walaupun stop() gagal, tetap teruskan finish().
+  scanner.stop()
+    .catch((err) => {
+
+      console.warn('Scanner stop:', err);
+
+    })
+    .finally(() => {
+
+      try {
+        scanner.clear();
+      } catch (e) {
+        console.warn('Scanner clear:', e);
+      }
+
+      const reader = document.getElementById('reader');
+
+      if (reader) {
+        reader.innerHTML = '';
+      }
+
+      // Tetap return walaupun stop gagal
+      setTimeout(finish, 150);
+
+    });
+
 }
+  
 async function start(){
  if(typeof Html5Qrcode==='undefined'){setStatus('Scanner library gagal dimuat.');return}
  scanner=new Html5Qrcode('reader');
