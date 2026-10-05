@@ -284,142 +284,105 @@ function clean(value){
    START CAMERA
 ========================================== */
 
-async function startScanner(){
+async function startScanner() {
 
-  if(scannerRunning){
+  if (scannerRunning) return;
 
+  if (typeof Html5Qrcode === 'undefined') {
+    setStatus('Scanner library gagal dimuat.');
     return;
-
   }
 
+  try {
 
-  if(typeof Html5Qrcode === 'undefined'){
+    setStatus('Mencari kamera...');
 
-    setStatus(
-      'Scanner library gagal dimuat.'
+    // Dapatkan senarai kamera
+    const cameras = await Html5Qrcode.getCameras();
+
+    console.log('Available cameras:', cameras);
+
+    if (!cameras || cameras.length === 0) {
+      throw new Error('NO_CAMERA');
+    }
+
+    // Cuba cari kamera belakang
+    let camera = cameras.find(c =>
+      /back|rear|environment|belakang/i.test(c.label)
     );
 
-    return;
+    // Kalau tak jumpa, guna kamera pertama
+    if (!camera) {
+      camera = cameras[0];
+    }
 
-  }
-
-
-  try{
+    console.log('Selected camera:', camera);
 
     setStatus(
-      'Meminta akses kamera...'
+      'Membuka kamera: ' +
+      (camera.label || 'Camera')
     );
 
-
-    /*
-      Buat scanner baru
-    */
-
-    scanner =
-      new Html5Qrcode('reader');
-
-
-    /*
-      Scanner configuration
-    */
+    scanner = new Html5Qrcode('reader');
 
     const config = {
+      fps: 10,
 
-      fps:10,
+      qrbox: function(width, height) {
 
-      qrbox:function(width,height){
+        const minEdge = Math.min(width, height);
 
-        const minEdge =
-          Math.min(width,height);
-
-        const boxWidth =
-          Math.floor(
-            minEdge * 0.75
-          );
-
-        const boxHeight =
-          Math.floor(
-            minEdge * 0.45
-          );
+        const boxWidth = Math.floor(minEdge * 0.75);
+        const boxHeight = Math.floor(minEdge * 0.45);
 
         return {
-
-          width:Math.max(
+          width: Math.max(
             220,
-            Math.min(
-              boxWidth,
-              420
-            )
+            Math.min(boxWidth, 420)
           ),
 
-          height:Math.max(
+          height: Math.max(
             120,
-            Math.min(
-              boxHeight,
-              280
-            )
+            Math.min(boxHeight, 280)
           )
-
         };
-
       }
-
     };
 
-
-    /*
-      Mula kamera belakang
-    */
-
     await scanner.start(
-
-      {
-        facingMode:"environment"
-      },
-
+      camera.id,
       config,
 
-      function(decodedText){
+      function(decodedText) {
 
         console.log(
           'Barcode detected:',
           decodedText
         );
 
-        handleScan(
-          decodedText
-        );
+        handleScan(decodedText);
 
       },
 
-      function(errorMessage){
+      function(errorMessage) {
 
-        /*
-          Error setiap frame adalah normal.
-          Jangan papar kepada user.
-        */
+        // Jangan papar error setiap frame
+        console.debug(
+          'Scan:',
+          errorMessage
+        );
 
       }
-
     );
 
-
     scannerRunning = true;
-
 
     setStatus(
       'Kamera aktif. Halakan kamera kepada barcode aset.'
     );
 
-
-    /*
-      Tukar button
-    */
-
     const startBtn =
-      document.getElementById(
-        'startBtn'
-      );
+      document.getElementById('startBtn');
 
     startBtn.innerHTML =
       '<i class="bi bi-camera-fill me-2"></i>' +
@@ -427,35 +390,69 @@ async function startScanner(){
 
     startBtn.disabled = true;
 
-
   }
 
-  catch(error){
+  catch(error) {
 
     console.error(
-      'Camera start error:',
+      'Camera error:',
       error
     );
 
-
     scannerRunning = false;
-
     scanner = null;
 
+    let message =
+      'Kamera tidak dapat dibuka.';
 
-    setStatus(
-      'Kamera tidak dapat dibuka.'
-    );
+    if (error.message === 'NO_CAMERA') {
 
+      message =
+        'Tiada kamera dikesan oleh browser.';
+
+    }
+    else if (
+      error.name === 'NotAllowedError'
+    ) {
+
+      message =
+        'Akses kamera ditolak. Sila benarkan kamera untuk browser.';
+
+    }
+    else if (
+      error.name === 'NotFoundError'
+    ) {
+
+      message =
+        'Kamera tidak dijumpai pada peranti.';
+
+    }
+    else if (
+      error.name === 'NotReadableError'
+    ) {
+
+      message =
+        'Kamera sedang digunakan oleh aplikasi lain.';
+
+    }
+    else if (
+      error.name === 'SecurityError'
+    ) {
+
+      message =
+        'Browser menyekat akses kamera. Pastikan laman menggunakan HTTPS.';
+
+    }
+
+    setStatus(message);
 
     alert(
-      'Kamera tidak dapat dibuka.\n\n' +
-      'Sila pastikan permission kamera ' +
-      'dibenarkan untuk browser ini.'
+      message +
+      '\n\nError: ' +
+      error.message
     );
 
   }
-
 }
 
 
